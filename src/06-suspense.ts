@@ -15,6 +15,7 @@ async function getPokemonComponent(id = 1) {
 }
 
 function replaceTemplate(id: string) {
+  console.log('hi');
   const container = document.querySelector<HTMLDivElement>(`div[data-suspense-id=${JSON.stringify(id)}]`);
   const template = document.querySelector<HTMLTemplateElement>(`template[data-suspense-id=${JSON.stringify(id)}]`);
   const templateContent = template?.content.querySelector('div');
@@ -45,6 +46,8 @@ class Awaiter {
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
   const awaiter = new Awaiter();
   let suspenseId = 0;
+  const content = getPokemonComponent(52);
+  const fallback = 'Loading...';
 
   function suspense(htmlPromise: Promise<string>, fallback: string): string {
     const id = String(++suspenseId);
@@ -64,14 +67,15 @@ export default async function (req: http.IncomingMessage, res: http.ServerRespon
 
   const payload = `
   <html>
-    <h1>Pokemon Suspense</h1>
+    <h1>Pokemon</h1>
     <div>
-      ${suspense(getPokemonComponent(52), 'Loading...')}
-      ${suspense(getPokemonComponent(32), 'Loading...')}
+       ${suspense(content, fallback)}
     </div>
-    </html>`;
+  </html>
+  `;
 
   res.write(payload);
+
   await awaiter.awaitAll();
   res.end();
 }

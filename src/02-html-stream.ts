@@ -1,0 +1,15 @@
+import type http from 'node:http';
+
+export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
+  const content = 'hello, world.';
+  const payload = `
+  <html>
+    <div>
+    ${content}
+    </div>
+  </html>
+  `;
+
+  res.write(payload);
+  res.end();
+}

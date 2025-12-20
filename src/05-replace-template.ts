@@ -28,50 +28,34 @@ function replaceTemplate(id: string) {
   template.remove();
 }
 
-class Awaiter {
-  promises: Promise<unknown>[] = [];
-  push(promise: Promise<unknown>) {
-    this.promises.push(promise);
-  }
-  async awaitAll() {
-    while (this.promises.length) {
-      const promises = this.promises;
-      this.promises = [];
-      await Promise.allSettled(promises);
-    }
-  }
-}
-
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
-  const awaiter = new Awaiter();
-  let suspenseId = 0;
-
-  function suspense(htmlPromise: Promise<string>, fallback: string): string {
-    const id = String(++suspenseId);
-    const promise = (async () => {
-      const template = `<template data-suspense-id=${id}>${await htmlPromise}</template>`;
-      res.write(template);
-
-      const script = `<script>(${replaceTemplate})(${JSON.stringify(id)})</script>`;
-      res.write(script);
-    })();
-
-    awaiter.push(promise);
-
-    const placeholder = `<div data-suspense-id=${id}>${fallback}</div>`;
-    return placeholder;
-  }
-
+  const content = getPokemonComponent();
+  const suspenseId = 'sus';
+  const fallback = `<div data-suspense-id=${suspenseId}>Loading...</div>`;
   const payload = `
   <html>
-    <h1>Pokemon Suspense</h1>
+    <h1>Pokemon</h1>
     <div>
-      ${suspense(getPokemonComponent(52), 'Loading...')}
-      ${suspense(getPokemonComponent(32), 'Loading...')}
+    ${fallback}
     </div>
-    </html>`;
+  </html>
+  `;
 
   res.write(payload);
-  await awaiter.awaitAll();
+
+  const template = `
+  <template data-suspense-id=${suspenseId}>
+    ${await content}
+  </template>`;
+
+  res.write(template);
+
+  const script = `
+  <script>
+    (${replaceTemplate})('${suspenseId}')
+  </script>`;
+
+  res.write(script);
+
   res.end();
 }
