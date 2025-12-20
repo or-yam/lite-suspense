@@ -1,13 +1,17 @@
 import type http from 'node:http';
 import { setTimeout } from 'node:timers/promises';
 
-async function getData(id = 1) {
+async function getPokemonComponent(id = 1) {
   await setTimeout(1000);
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
   const data = await res.json();
   const { name, sprites } = data;
 
-  return `<div>${name} <img  src=${sprites.front_default} /> </div>`;
+  return `
+    <div>
+      ${name}
+      <img src=${sprites.front_default} />
+    </div>`;
 }
 
 function replaceTemplate(id: string) {
@@ -24,23 +28,49 @@ function replaceTemplate(id: string) {
   template.remove();
 }
 
+class Awaiter {
+  promises: Promise<unknown>[] = [];
+  push(promise: Promise<unknown>) {
+    this.promises.push(promise);
+  }
+  async awaitAll() {
+    while (this.promises.length) {
+      const promises = this.promises;
+      this.promises = [];
+      await Promise.allSettled(promises);
+    }
+  }
+}
+
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
-  const data = getData(10);
-  const suspenseId = 'sus-id';
+  const awaiter = new Awaiter();
+  let suspenseId = 0;
+  function suspense(htmlPromise: Promise<string>, fallback: string): string {
+    const id = String(++suspenseId);
+    const promise = (async () => {
+      const template = `<template data-suspense-id=${id}>${await htmlPromise}</template>`;
+      res.write(template);
+
+      const script = `<script>(${replaceTemplate})(${JSON.stringify(id)})</script>`;
+      res.write(script);
+    })();
+
+    awaiter.push(promise);
+
+    const placeholder = `<div data-suspense-id=${id}>${fallback}</div>`;
+    return placeholder;
+  }
 
   const payload = `
   <html>
-    <div>Pokemon Suspense</div>
-    <div data-suspense-id=${suspenseId}>Loading...</div>
-  </html>`;
+    <h1>Pokemon Suspense</h1>
+    <div>
+      ${suspense(getPokemonComponent(52), 'Loading...')}
+      ${suspense(getPokemonComponent(32), 'Loading...')}
+    </div>
+    </html>`;
+
   res.write(payload);
-
-  const template = `<template data-suspense-id=${suspenseId}>${await data}</template>`;
-  res.write(template);
-
-  const script = `<script>(${replaceTemplate})(${JSON.stringify(suspenseId)})</script>`;
-
-  res.write(script);
-
+  await awaiter.awaitAll();
   res.end();
 }
