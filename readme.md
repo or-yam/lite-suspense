@@ -1,6 +1,6 @@
-# Naive implamentation of React's suspense on the server
+# Naive implementation of React's SSR Suspense
 
-## Inspired (copied 😅) from [Gal talk](https://www.youtube.com/watch?v=yia1zS7EgCw) on js israel
+## Inspired (copied 😅) from [Gal Schlezinger](https://github.com/Schniz) [talk](https://www.youtube.com/watch?v=yia1zS7EgCw) on [javascript israel](https://www.youtube.com/@javascriptisrael)
 
 ### Things to note
 
