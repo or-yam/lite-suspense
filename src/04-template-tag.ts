@@ -1,19 +1,11 @@
 import type http from 'node:http';
-import { setTimeout } from 'node:timers/promises';
+import { getPokemonComponent } from './utils.ts';
 
-async function getPokemonComponent(id = 1) {
-  await setTimeout(1000);
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-  const data = await res.json();
-  const { name, sprites } = data;
-
-  return `
-    <div>
-      ${name}
-      <img src=${sprites.front_default} />
-    </div>`;
-}
-
+/**
+ * Rendering fallback content while fetching data for the Pokemon component.
+ * Non-blocking server side render with template tag.
+ * Content is only rendered in the template element when data is ready.
+ */
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
   const content = getPokemonComponent();
   const fallback = `<div>Loading...</div>`;

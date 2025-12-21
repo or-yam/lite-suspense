@@ -4,11 +4,11 @@
 
 ### Things to note
 
-- `curl` and browser client buffer the response so you will not get the timeout effect by default
+- `curl` and browser client buffer the response, so you'll not get the timeout effect by default (`01-stream.ts`)
 to avoid it you need to use `curl -N` to disable buffering
-or do a `\n` in the end of a string.
+or add line break `\n` at the end of a string.
 
-another option is to right the header before:
+another option is to write the header before:
 
 ```js
 res.writeHead(200, {
@@ -17,4 +17,9 @@ res.writeHead(200, {
 res.flushHeaders();
 ```
 
-- `template` HTML element has a special [content property](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#usage_notes), and its childe nodes are there. (unless you create it with appendChild)
+- `template` HTML element has a special [content property](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/template#usage_notes), and its childe nodes are there (unless you create it with appendChild).
+This is why I added:
+
+```ts
+template?.content.querySelector('div')
+```

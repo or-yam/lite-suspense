@@ -1,19 +1,11 @@
 import type http from 'node:http';
-import { setTimeout } from 'node:timers/promises';
+import { getPokemonComponent } from './utils.ts';
 
-async function getPokemonComponent(id = 1) {
-  await setTimeout(1000);
-  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-  const data = await res.json();
-  const { name, sprites } = data;
-
-  return `
-    <div>
-      ${name}
-      <img src=${sprites.front_default} />
-    </div>`;
-}
-
+/**
+ * Fetch and render of a Pokemon component.
+ * All data is fetched before sending the response.
+ * (Blocking server side render)
+ */
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
   const content = await getPokemonComponent();
   const payload = `
