@@ -24,6 +24,9 @@ export async function getPokemonComponent(id = 1) {
  * @param id Suspense ID
  */
 export function replaceTemplate(id: string) {
+  /**
+   * We need to escape the string id to be able to pass it as a parameter to the function on the client side.
+   */
   const container = document.querySelector<HTMLDivElement>(`div[data-suspense-id=${JSON.stringify(id)}]`);
   const template = document.querySelector<HTMLTemplateElement>(`template[data-suspense-id=${JSON.stringify(id)}]`);
   const templateContent = template?.content.querySelector('div');

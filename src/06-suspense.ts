@@ -2,6 +2,9 @@ import type http from 'node:http';
 import { Awaiter, getPokemonComponent, replaceTemplate } from './utils.ts';
 
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
+  /**
+   * The awaiter will help us to wait for all the suspense components, to be resolved.
+   */
   const awaiter = new Awaiter();
   let suspenseId = 0;
   const content = getPokemonComponent(52);
@@ -13,6 +16,9 @@ export default async function (req: http.IncomingMessage, res: http.ServerRespon
       const template = `<template data-suspense-id=${id}>${await htmlPromise}</template>`;
       res.write(template);
 
+      /**
+       * We need to escape the string id to be able to pass it as a parameter to the function on the client side.
+       */
       const script = `<script>(${replaceTemplate})(${JSON.stringify(id)})</script>`;
       res.write(script);
     })();

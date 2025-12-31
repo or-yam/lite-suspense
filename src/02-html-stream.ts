@@ -6,10 +6,13 @@ import type http from 'node:http';
  */
 export default async function (req: http.IncomingMessage, res: http.ServerResponse) {
   const content = 'hello, world.';
+  const buttonElement = `<button>Click me</button>`;
+
   const payload = `
   <html>
     <div>
     ${content}
+    ${buttonElement}
     </div>
   </html>
   `;
