@@ -66,8 +66,8 @@ export default async function (req: http.IncomingMessage, res: http.ServerRespon
   <html>
     <h1>Pokemon Suspense</h1>
     <div>
-      ${suspense(getPokemonComponent(52), 'Loading...')}
-      ${suspense(getPokemonComponent(32), 'Loading...')}
+      ${suspense(getPokemonComponent(52), 'Loading 52...')}
+      ${suspense(getPokemonComponent(32), 'Loading 32...')}
     </div>
     </html>`;
 
